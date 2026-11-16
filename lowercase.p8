@@ -12,11 +12,11 @@
 ]]
 
 -- define letters and bitmaps
-alphabet="abcdefghijklmnopqrstuvwxyz"
+local alphabet="abcdefghijklmnopqrstuvwxyz"
 
 -- combine letters and bitmaps
 -- in a single table
-images={
+local images={
 	0x001e.120c,0x000c.121f, --a b
 	0x0012.120c,0x001f.120c, --c d
 	0x0014.1a0c,0x0005.1e04, --e f
@@ -58,6 +58,7 @@ function draw_image(image, x, y, col)
 
 		if i%8==7 then x+=1 end
 	end
+end
 
 -- print a single character, uppercase or lowercase.
 function cprint(char,x,y,case,col)
@@ -66,20 +67,26 @@ function cprint(char,x,y,case,col)
 	col = col or 7
 	case = case or 'lower'
 
-	alphadict = get_alphadict()
+	local alphadict = get_alphadict()
 
-	retval = 0
+	local retval = 0
 
-	if case = 'upper' or alphadict[char] == nil then
+	if case == 'upper' or alphadict[char] == nil then
 		print(char, x, y, col)
 	else
 		draw_image(alphadict[char], x, y, col)
 	end
 end
 
--- print multiple characters. Uppercase characters are prefixed by \\
+--[[
+print multiple characters. Uppercase characters are prefixed by \\
+directives (real control characters, same as print):
+	"\f" + hex digit  set color, e.g. "\f8red \f7white"
+	"\n"              newline (back to the starting x, down 8)
+	"\t"              tab (next multiple of 16 pixels from the starting x)
+]]
 function cprintline(text,x,y,col)
-	alphadict = get_alphadict()
+	local alphadict = get_alphadict()
 
 	text = text or ""
 
@@ -87,19 +94,34 @@ function cprintline(text,x,y,col)
 	y = y or 0
 	col = col or 7
 
-	capital=false
+	local x0 = x
+	local capital=false
+	local l=1
 
-	for l=1,#text do
-		letter=sub(text,l,l)
+	while l<=#text do
+		local letter=sub(text,l,l)
+		l+=1
 
-		if letter=="\\" and not capital then
-			capital=true
-		elseif capital or alphadict[letter]==nil then
+		if capital then
 			print(letter,x,y,col)
 			x+=4
 			capital=false
+		elseif letter=="\\" then
+			capital=true
+		elseif letter=="\f" then
+			col=tonum("0x"..sub(text,l,l)) or col
+			l+=1
+		elseif letter=="\n" then
+			x=x0
+			y+=8
+		elseif letter=="\t" then
+			x=x0+(flr((x-x0)/16)+1)*16
+		elseif alphadict[letter]==nil then
+			print(letter,x,y,col)
+			x+=4
 		else
-			draw_image(alphadict[char], x, y, col)
+			draw_image(alphadict[letter], x, y, col)
+			x+=4
 		end
 	end
 end
