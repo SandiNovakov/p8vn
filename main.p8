@@ -30,7 +30,7 @@ acc = 0
 
 lines = {0,8,16,24,32,40,48,56,64,72,80,88,96,104,112,120}
 
-debug = true
+debug = false
 
 delay = 0
 delay_amt = 60 -- frames
@@ -46,6 +46,8 @@ function get_acc_amt()
 end
 
 function _update60()
+	update_cursor()
+
 	if btn(1) then
 		mode_full_skip = true
 	else
@@ -88,6 +90,7 @@ function _update60()
 			
 					if not mode_full_skip then
 						state = "input"
+						show_cursor(1)
 					end
 
 					done = true
@@ -145,6 +148,7 @@ function _update60()
 				state = "done"
 			else
 				state = "input-page"
+				show_cursor(4)
 			end
 		end
 
@@ -153,6 +157,7 @@ function _update60()
 	if state == "input" then
 		if btnp(5) or mode_full_skip == true then
 			state = "printing"
+			hide_cursor()
 		end
 	end
 
@@ -164,6 +169,7 @@ function _update60()
 			page_idx += 1
 			screen_buffer = {""}
 			state = "printing"
+			hide_cursor()
 		end
 	end
 
@@ -185,8 +191,11 @@ function _draw()
 	local y = 0
 
 	for i=1,#screen_buffer do
-		cprintline(screen_buffer[i],0,(i-1)*8)
+		y = (i-1)*8
+		x = cprintline(screen_buffer[i],0,y)
 	end
+
+	draw_cursor(x,y)
 
 	if debug == true then
 		local write_speed = "normal"

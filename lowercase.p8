@@ -124,5 +124,7 @@ function cprintline(text,x,y,col)
 			x+=4
 		end
 	end
+
+	return x
 end
 -- end lowercase library
