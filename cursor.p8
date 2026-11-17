@@ -123,10 +123,12 @@ function draw_cursor(x,y)
 		return
 	end
 
+	
 	if x > 128-c.width then
 		x = 0
 		y += 8
 	end
+
 
 	print(c.frames[cur_frame], x, y, 12)
 end
