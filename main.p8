@@ -64,7 +64,7 @@ function gs_main_update()
 		mode_full_skip = false
 	end
 
-	if btnp(4) then
+	if btnp(0) then
 		debug = not debug
 	end
 
@@ -169,6 +169,11 @@ function gs_main_update()
 		write_buffer = ""
 
 	elseif state == "input" then
+		if btnp(4) then
+			g_state = "save"
+			show_cursor(2)
+		end
+
 		if btnp(2) then
 			swap_buffer = screen_buffer
 			return_state = "input"
@@ -184,6 +189,10 @@ function gs_main_update()
 		end
 
 	elseif state == "input-page" then
+		if btnp(4) then
+			g_state = "save"
+			show_cursor(2)
+		end
 		if btnp(2) then
 			swap_buffer = screen_buffer
 			return_state = "input-page"
